@@ -1,5 +1,7 @@
 import { Router, Request, Response } from "express";
 import Server from '../classes/server';
+import { Socket } from 'socket.io';
+import { usersOnline } from '../sockets/sockets';
 
 const router = Router();
 
@@ -52,5 +54,29 @@ router.post("/messages/:id", (req: Request, res: Response) => {
 	});
 });
 
+router.get('/users', (req: Request, resp: Response) => {
+    const server = Server.instance;
+
+    server.io.clients((err: any, clients: string[]) => {
+        if (err) {
+            return resp.json({
+                ok: false,
+                err
+            });
+        }
+
+        resp.json({
+            ok: true,
+            clients
+        });
+    });
+});
+
+router.get('/users/info', (req: Request, resp: Response) => {
+    resp.json({
+        ok: true,
+        clients: usersOnline.getList()
+    });
+});
 
 export default router;
